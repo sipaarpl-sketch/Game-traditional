@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ular Tangga Soft Pastel - XII RPL 1</title>
+    <style>
+        :root {
+            --bg-color: #f7f3f9;
+            --card-bg: #ffffff;
+            --primary-soft: #a8d8ea;
+            --accent-pink: #faa0a0;
+            --accent-purple: #c3aed6;
+            --accent-yellow: #fde2e4;
+            --text-dark: #4a4e69;
+            --text-muted: #8d99ae;
+            --board-cell-1: #fff0f5;
+            --board-cell-2: #e6e6fa;
+            --p1-color: #ff9aa2;
+            --p2-color: #6eb5ff;
+            --shadow-soft: 0 10px 25px rgba(168, 180, 200, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#e2d9f3 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        /* ---------------- HALAMAN LOGIN ---------------- */
+        .login-screen {
+            background: var(--card-bg);
+            padding: 30px 25px;
+            border-radius: 24px;
+            box-shadow: var(--shadow-soft);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            animation: fadeIn 0.5s ease-in-out;
+            border: 2px solid #ffffff;
+        }
+
+        .login-screen h1 {
+            color: #6b5b95;
+            font-size: 1.7rem;
+            font-weight: 700;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            gap: 6px;
+        }
+
+        .input-group label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-left: 4px;
+        }
+
+        .input-group input, .input-group select {
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            background: #fafafa;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+            color: var(--text-dark);
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            border-color: var(--accent-purple);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(195, 174, 214, 0.2);
+        }
+
+        #p2InputGroup {
+            display: none; /* Default tersembunyi, muncul jika mode 2 player dipilih */
+        }
+
+        .credits-card {
+            background: linear-gradient(135deg, #fff0f5, #e6e6fa);
+            border-radius: 16px;
+            padding: 15px;
+            border: 1px solid #f0e6ff;
+            text-align: left;
+        }
+
+        .credits-card h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8a7090;
+            margin-bottom: 8px;
+        }
+
+        .team-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .team-badge {
+            background: #ffffff;
+            color: #6b5b95;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            border: 1px solid #eadbfe;
+        }
+
+        .class-badge {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.75rem;
+            color: #8d99ae;
+            font-weight: 500;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #ffb7b2, #ff9aa2);
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(255, 154, 162, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 154, 162, 0.5);
+        }
+
+        /* ---------------- ARENA GAME ---------------- */
+        .game-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            max-width: 900px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        header.game-header {
+            text-align: center;
+        }
+
+        header.game-header h2 {
+            color: #6b5b95;
+            font-size: 1.5rem;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .main-container {
+                flex-direction: row;
+                align-items: flex-start;
+                justify-content: center;
+            }
+        }
+
+        /* Board Area */
+        .board-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 440px;
+            aspect-ratio: 1 / 1;
+            border: 8px solid #ffffff;
+            border-radius: 20px;
+            box-shadow: var(--shadow-soft);
+            background-color: var(--board-cell-1);
+            overflow: hidden;
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            width: 100%;
+            height: 100%;
+        }
+
+        .cell {
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            padding: 3px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #7b7b93;
+            position: relative;
+        }
+
+        .cell:nth-child(even) {
+            background-color: var(--board-cell-2);
+        }
+
+        .cell:nth-child(odd) {
+            background-color: var(--board-cell-1);
+        }
+
+        /* Overlay Canvas */
+        #gameCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* Pawns */
+        .pawn-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .pawn {
+            position: absolute;
+            width: 7.5%;
+            height: 7.5%;
+            border-radius: 50%;
+            border: 2.5px solid #ffffff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: translate(-50%, -50%);
+        }
+
+        .pawn.p1 { background-color: var(--p1-color); }
+        .pawn.p2 { background-color: var(--p2-color); }
+
+        /* Controls Panel */
+        .controls-panel {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            width: 100%;
+            max-width: 330px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: var(--shadow-soft);
+            border: 2px solid #ffffff;
+        }
+
+        .players-status {
+            display: flex;
+            gap: 10px;
+        }
+
+        .player-card {
+            flex: 1;
+            background: #f8f9fa;
+            border-radius: 14px;
+            padding: 10px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .player-card.active {
+            border-color: var(--accent-purple);
+            background: #f3edff;
+            transform: scale(1.02);
+        }
+
+        .player-card .name {
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .player-card.p1 .name { color: #e66b75; }
+        .player-card.p2 .name { color: #4a90e2; }
+
+        .player-card .pos {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-top: 2px;
+            color: var(--text-dark);
+        }
+
+        /* Dice Section */
+        .dice-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dice {
+            width: 65px;
+            height: 65px;
+            background: #ffffff;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            color: #6b5b95;
+            box-shadow: 0 6px 16px rgba(180, 160, 200, 0.25);
+            border: 2px solid #f0e6ff;
+        }
+
+        .btn-roll {
+            width: 100%;
+            padding: 12px;
+            font-size: 0.95rem;
+            background: linear-gradient(135deg, #b5ead7, #95dac1);
+            color: #2d5a4c;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(149, 218, 193, 0.4);
+            transition: transform 0.1s;
+        }
+
+        .btn-roll:active {
+            transform: scale(0.98);
+        }
+
+        .btn-roll:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Log Box */
+        .log-box {
+            background: #faf7fc;
+            border-radius: 12px;
+            padding: 10px;
+            height: 75px;
+            overflow-y: auto;
+            font-size: 0.75rem;
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column-reverse;
+            border: 1px solid #f0e6ff;
+        }
+
+        .log-entry {
+            margin-bottom: 3px;
+            line-height: 1.3;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(74, 78, 105, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            max-width: 320px;
+            box-shadow: var(--shadow-soft);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .modal-content h2 {
+            color: #6b5b95;
+            margin-bottom: 8px;
+        }
+
+        .modal-content button {
+            margin-top: 15px;
+            padding: 10px 24px;
+            background: var(--accent-pink);
+            color: #fff;
+            border: none;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HALAMAN LOGIN -->
+    <div id="loginScreen" class="login-screen">
+        <div>
+            <h1>Ular Tangga Soft</h1>
+        </div>
+
+        <div class="input-group">
+            <label for="modeSelect">Lawan Bermain:</label>
+            <select id="modeSelect" onchange="toggleMode()">
+                <option value="vsBot">Komputer / Bot Soft</option>
+                <option value="vsFriend">Teman (2 Player Lokal)</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label for="playerNameInput">Nama Pemain 1:</label>
+            <input type="text" id="playerNameInput" placeholder="Nama Pemain 1..." value="Pemain 1">
+        </div>
+
+        <div class="input-group" id="p2InputGroup">
+            <label for="player2NameInput">Nama Pemain 2:</label>
+            <input type="text" id="player2NameInput" placeholder="Nama Pemain 2..." value="Pemain 2">
+        </div>
+
+        <!-- INFORMASI PEMBUAT / KELOMPOK -->
+        <div class="credits-card">
+            <h3>Dibuat Oleh Kelompok:</h3>
+            <div class="team-list">
+                <span class="team-badge">🌸 Fifi</span>
+                <span class="team-badge">🌷 Sitah</span>
+                <span class="team-badge">🌺 Sipa</span>
+            </div>
+            <div class="class-badge">Kelas: XII RPL 1</div>
+        </div>
+
+        <button class="btn-start" onclick="startGame()">Mulai Permainan ✨</button>
+    </div>
+
+    <!-- HALAMAN GAME -->
+    <div id="gameScreen" class="game-screen">
+        <header class="game-header">
+            <h2>Ular Tangga</h2>
+        </header>
+
+        <div class="main-container">
+            <div class="board-wrapper">
+                <div id="board"></div>
+                <canvas id="gameCanvas"></canvas>
+                <div class="pawn-container">
+                    <div id="pawn1" class="pawn p1"></div>
+                    <div id="pawn2" class="pawn p2"></div>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <div class="players-status">
+                    <div id="cardP1" class="player-card p1 active">
+                        <div id="p1DisplayName" class="name">Pemain 1</div>
+                        <div id="posP1" class="pos">1</div>
+                    </div>
+                    <div id="cardP2" class="player-card p2">
+                        <div id="p2DisplayName" class="name">Bot</div>
+                        <div id="posP2" class="pos">1</div>
+                    </div>
+                </div>
+
+                <div class="dice-section">
+                    <div id="dice" class="dice">⚀</div>
+                    <button id="btnRoll" class="btn-roll" onclick="handleRoll()">Kocok Dadu 🎲</button>
+                </div>
+
+                <div id="logBox" class="log-box">
+                    <div class="log-entry">Selamat bermain! Klik "Kocok Dadu" untuk mulai.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PEMENANG -->
+    <div id="winnerModal" class="modal">
+        <div class="modal-content">
+            <h2 id="winnerText">Pemain 1 Menang! 🎉</h2>
+            <p>Selamat atas kemenangannya!</p>
+            <button onclick="resetGame()">Main Lagi</button>
+        </div>
+    </div>
+
+    <script>
+        const snakes = { 98: 78, 95: 56, 88: 24, 62: 18, 48: 26, 36: 6, 32: 10 };
+        const ladders = { 4: 14, 9: 31, 20: 38, 28: 84, 40: 59, 51: 67, 63: 81, 71: 91 };
+        const diceIcons = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+
+        let gameMode = 'vsBot';
+        let currentPlayer = 1;
+        let positions = { 1: 1, 2: 1 };
+        let isRolling = false;
+        let p1Name = "Pemain 1";
+        let p2Name = "Bot";
+
+        const boardEl = document.getElementById('board');
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function toggleMode() {
+            const mode = document.getElementById('modeSelect').value;
+            const p2Group = document.getElementById('p2InputGroup');
+            if (mode === 'vsFriend') {
+                p2Group.style.display = 'flex';
+            } else {
+                p2Group.style.display = 'none';
+            }
+        }
+
+        function startGame() {
+            const nameInput1 = document.getElementById('playerNameInput').value.trim();
+            if (nameInput1) p1Name = nameInput1;
+
+            gameMode = document.getElementById('modeSelect').value;
+
+            if (gameMode === 'vsFriend') {
+                const nameInput2 = document.getElementById('player2NameInput').value.trim();
+                if (nameInput2) p2Name = nameInput2;
+            } else {
+                p2Name = "Bot";
+            }
+
+            document.getElementById('p1DisplayName').innerText = p1Name;
+            document.getElementById('p2DisplayName').innerText = p2Name;
+
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'flex';
+
+            createBoard();
+            setTimeout(() => {
+                drawOverlay();
+                updatePawns();
+            }, 100);
+        }
+
+        function createBoard() {
+            boardEl.innerHTML = '';
+            for (let row = 9; row >= 0; row--) {
+                for (let col = 0; col < 10; col++) {
+                    let cellNum = (row % 2 === 1) ? row * 10 + (10 - col) : row * 10 + (col + 1);
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.id = `cell-${cellNum}`;
+                    cell.innerText = cellNum;
+                    boardEl.appendChild(cell);
+                }
+            }
+        }
+
+        function getCellCenter(cellNum) {
+            const cell = document.getElementById(`cell-${cellNum}`);
+            const boardRect = boardEl.getBoundingClientRect();
+            const cellRect = cell.getBoundingClientRect();
+
+            return {
+                x: cellRect.left - boardRect.left + cellRect.width / 2,
+                y: cellRect.top - boardRect.top + cellRect.height / 2
+            };
+        }
+
+        function drawOverlay() {
+            canvas.width = boardEl.clientWidth;
+            canvas.height = boardEl.clientHeight;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Tangga Soft Lavender/Pastel
+            for (let start in ladders) {
+                let p1 = getCellCenter(start);
+                let p2 = getCellCenter(ladders[start]);
+
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.strokeStyle = '#c3aed6';
+                ctx.lineWidth = 6;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 4]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Ular Soft Coral/Pink
+            for (let start in snakes) {
+                let p1 = getCellCenter(start);
+                let p2 = getCellCenter(snakes[start]);
+
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                let midX = (p1.x + p2.x) / 2 + 18;
+                let midY = (p1.y + p2.y) / 2 - 18;
+                ctx.quadraticCurveTo(midX, midY, p2.x, p2.y);
+                ctx.strokeStyle = '#f8a5c2';
+                ctx.lineWidth = 5;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+            }
+        }
+
+        function updatePawns() {
+            for (let p = 1; p <= 2; p++) {
+                let pos = positions[p];
+                let coords = getCellCenter(pos);
+                let pawnEl = document.getElementById(`pawn${p}`);
+                
+                let offsetX = (p === 2 && positions[1] === positions[2]) ? 6 : 0;
+                let offsetY = (p === 2 && positions[1] === positions[2]) ? -6 : 0;
+
+                pawnEl.style.left = `${coords.x + offsetX}px`;
+                pawnEl.style.top = `${coords.y + offsetY}px`;
+            }
+
+            document.getElementById('posP1').innerText = positions[1];
+            document.getElementById('posP2').innerText = positions[2];
+        }
+
+        function addLog(msg) {
+            const logBox = document.getElementById('logBox');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerText = msg;
+            logBox.prepend(entry);
+        }
+
+        function handleRoll() {
+            if (isRolling) return;
+            isRolling = true;
+            document.getElementById('btnRoll').disabled = true;
+
+            const diceEl = document.getElementById('dice');
+            let rollCount = 0;
+
+            let interval = setInterval(() => {
+                let tempRoll = Math.floor(Math.random() * 6) + 1;
+                diceEl.innerText = diceIcons[tempRoll - 1];
+                rollCount++;
+
+                if (rollCount > 10) {
+                    clearInterval(interval);
+                    let finalRoll = Math.floor(Math.random() * 6) + 1;
+                    diceEl.innerText = diceIcons[finalRoll - 1];
+                    processMove(finalRoll);
+                }
+            }, 50);
+        }
+
+        function processMove(steps) {
+            let activeName = currentPlayer === 1 ? p1Name : p2Name;
+            addLog(`${activeName} mendapat dadu ${steps}`);
+
+            let currentPos = positions[currentPlayer];
+            let targetPos = currentPos + steps;
+
+            if (targetPos > 100) {
+                addLog(`${activeName} melampaui 100, tetap di posisi.`);
+                finishTurn();
+                return;
+            }
+
+            let stepInterval = setInterval(() => {
+                currentPos++;
+                positions[currentPlayer] = currentPos;
+                updatePawns();
+
+                if (currentPos === targetPos) {
+                    clearInterval(stepInterval);
+
+                    setTimeout(() => {
+                        if (ladders[targetPos]) {
+                            addLog(`✨ ${activeName} naik tangga ke-${ladders[targetPos]}`);
+                            positions[currentPlayer] = ladders[targetPos];
+                            updatePawns();
+                        } else if (snakes[targetPos]) {
+                            addLog(`🌸 ${activeName} turun ular ke-${snakes[targetPos]}`);
+                            positions[currentPlayer] = snakes[targetPos];
+                            updatePawns();
+                        }
+
+                        if (positions[currentPlayer] === 100) {
+                            document.getElementById('winnerText').innerText = `${activeName} Menang! 🎉`;
+                            document.getElementById('winnerModal').style.display = 'flex';
+                            return;
+                        }
+
+                        finishTurn();
+                    }, 250);
+                }
+            }, 180);
+        }
+
+        function finishTurn() {
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+
+            document.getElementById('cardP1').classList.toggle('active', currentPlayer === 1);
+            document.getElementById('cardP2').classList.toggle('active', currentPlayer === 2);
+
+            isRolling = false;
+
+            if (currentPlayer === 2 && gameMode === 'vsBot') {
+                document.getElementById('btnRoll').disabled = true;
+                setTimeout(() => handleRoll(), 700);
+            } else {
+                document.getElementById('btnRoll').disabled = false;
+            }
+        }
+
+        function resetGame() {
+            positions = { 1: 1, 2: 1 };
+            currentPlayer = 1;
+            isRolling = false;
+            document.getElementById('cardP1').classList.add('active');
+            document.getElementById('cardP2').classList.remove('active');
+            document.getElementById('btnRoll').disabled = false;
+            document.getElementById('winnerModal').style.display = 'none';
+            document.getElementById('logBox').innerHTML = '<div class="log-entry">Permainan direset. Silakan mulai!</div>';
+            updatePawns();
+        }
+
+        window.onresize = () => {
+            if (document.getElementById('gameScreen').style.display === 'flex') {
+                drawOverlay();
+                updatePawns();
+            }
+        };
+    </script>
+</body>
+</html>
